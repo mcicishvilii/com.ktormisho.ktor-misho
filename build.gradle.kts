@@ -61,6 +61,7 @@ dependencies {
     implementation("commons-codec:commons-codec:$commons_codec_version")
 
     implementation ("com.h2database:h2:1.4.200")
+    implementation("mysql:mysql-connector-java:8.0.30")
 }
 
 ant.withGroovyBuilder {

@@ -11,15 +11,17 @@ import io.ktor.server.routing.*
 import java.sql.DriverManager
 
 fun Application.configureRouting() {
-    val connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "")
-
+    val connection = DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/mishosdb",
+        "root",
+        "Suckartwell0!"
+    )
     val statement = connection.createStatement()
     statement.execute("CREATE TABLE IF NOT EXISTS users (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255), email VARCHAR(255))")
-    statement.close()
+//    statement.close()
 
     routing {
         get("/users") {  // This endpoint should be secured with proper access control
-            val connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "")
             val statement = connection.prepareStatement("SELECT * FROM users")
             val resultSet = statement.executeQuery()
 
@@ -32,7 +34,7 @@ fun Application.configureRouting() {
 
             resultSet.close()
             statement.close()
-            connection.close()
+//            connection.close()
 
             call.respond(HttpStatusCode.OK, usernames)  // Return only usernames (not passwords or emails)
         }
@@ -53,7 +55,6 @@ fun Application.configureRouting() {
             post("/register") {
                 val post = call.receive<RegisterPost>()
                 if (post.username.isNotBlank() && post.password.isNotBlank() && post.email.isNotBlank()) {
-                    val connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "")
                     val statement = connection.prepareStatement("SELECT * FROM users WHERE username = ?")
                     statement.setString(1, post.username)
                     val resultSet = statement.executeQuery()
@@ -62,7 +63,7 @@ fun Application.configureRouting() {
                         call.respond(HttpStatusCode.Conflict, "Username already exists")
                         resultSet.close()
                         statement.close()
-                        connection.close()  // Close connection after checking username
+//                        connection.close()  // Close connection after checking username
                         return@post
                     }
 
