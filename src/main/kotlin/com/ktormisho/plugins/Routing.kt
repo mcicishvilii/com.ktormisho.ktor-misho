@@ -25,18 +25,18 @@ fun Application.configureRouting() {
             val statement = connection.prepareStatement("SELECT * FROM users")
             val resultSet = statement.executeQuery()
 
-            val usernames = mutableListOf<String>()
+            val users = mutableListOf<Map<String, String>>()
             while (resultSet.next()) {
-                usernames.add(resultSet.getString("username"))
-                usernames.add(resultSet.getString("password"))
-                usernames.add(resultSet.getString("email"))
+                val user = mapOf(
+                    "username" to resultSet.getString("username"),
+                    "password" to resultSet.getString("password"),
+                    "email" to resultSet.getString("email")
+                )
+                users.add(user)
             }
-
             resultSet.close()
             statement.close()
-//            connection.close()
-
-            call.respond(HttpStatusCode.OK, usernames)  // Return only usernames (not passwords or emails)
+            call.respond(HttpStatusCode.OK, users)  // Return only usernames (not passwords or emails)
         }
         route("/api") {
             post("/login") {
