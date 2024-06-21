@@ -59,6 +59,8 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
 
     implementation("commons-codec:commons-codec:$commons_codec_version")
+
+    implementation ("com.h2database:h2:1.4.200")
 }
 
 ant.withGroovyBuilder {
