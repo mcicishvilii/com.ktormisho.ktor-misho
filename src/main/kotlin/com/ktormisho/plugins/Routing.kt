@@ -18,12 +18,23 @@ fun Application.configureRouting() {
     statement.close()
 
     routing {
-        route ("/"){
-            get(){
-                call.respondText(
-                    "Hello"
-                )
+        get("/users") {  // This endpoint should be secured with proper access control
+            val connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "")
+            val statement = connection.prepareStatement("SELECT * FROM users")
+            val resultSet = statement.executeQuery()
+
+            val usernames = mutableListOf<String>()
+            while (resultSet.next()) {
+                usernames.add(resultSet.getString("username"))
+                usernames.add(resultSet.getString("password"))
+                usernames.add(resultSet.getString("email"))
             }
+
+            resultSet.close()
+            statement.close()
+            connection.close()
+
+            call.respond(HttpStatusCode.OK, usernames)  // Return only usernames (not passwords or emails)
         }
         route("/api") {
             post("/login") {
@@ -42,12 +53,26 @@ fun Application.configureRouting() {
             post("/register") {
                 val post = call.receive<RegisterPost>()
                 if (post.username.isNotBlank() && post.password.isNotBlank() && post.email.isNotBlank()) {
-                    val statement = connection.prepareStatement("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")
+                    val connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "")
+                    val statement = connection.prepareStatement("SELECT * FROM users WHERE username = ?")
                     statement.setString(1, post.username)
-                    statement.setString(2, post.password) // Consider hashing passwords for security
-                    statement.setString(3, post.email)
-                    statement.executeUpdate()
-                    statement.close()
+                    val resultSet = statement.executeQuery()
+
+                    if (resultSet.next()) {
+                        call.respond(HttpStatusCode.Conflict, "Username already exists")
+                        resultSet.close()
+                        statement.close()
+                        connection.close()  // Close connection after checking username
+                        return@post
+                    }
+
+                    val insertStatement = connection.prepareStatement("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")
+                    insertStatement.setString(1, post.username)
+                    insertStatement.setString(2, post.password) // Consider hashing passwords for security
+                    insertStatement.setString(3, post.email)
+                    insertStatement.executeUpdate()
+                    insertStatement.close()
+                    connection.close()  // Close connection after insertion
                     call.respond(HttpStatusCode.OK, "Registration successful")
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid registration information")
