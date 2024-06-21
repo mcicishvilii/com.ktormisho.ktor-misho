@@ -1,1 +1,0 @@
-web: java -jar target/ktor-misho-1.0.0-all.jar
