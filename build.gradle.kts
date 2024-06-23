@@ -79,3 +79,7 @@ ant.withGroovyBuilder {
         "classpath" to configurations.get("sshAntTask").asPath
     )
 }
+
+tasks {
+    create("stage").dependsOn("installDist")
+}
