@@ -76,7 +76,7 @@ fun Application.configureRouting() {
                         val resultSet = checkStatement.executeQuery()
 
                         if (resultSet.next()) {
-                            call.respond(HttpStatusCode.Conflict, mapOf("message" to "User already exists"))
+                            call.respond(HttpStatusCode.Conflict, mapOf("error" to "User already exists"))
                             return@post
                         }
 
@@ -88,7 +88,7 @@ fun Application.configureRouting() {
                         call.respond(HttpStatusCode.OK, mapOf("message" to "Registration successful"))
                     }
                 } else {
-                    call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Invalid registration information"))
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid registration information"))
                 }
             }
         }
