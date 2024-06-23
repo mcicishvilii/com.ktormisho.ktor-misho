@@ -62,6 +62,9 @@ dependencies {
 
     implementation ("com.h2database:h2:1.4.200")
     implementation("mysql:mysql-connector-java:8.0.30")
+
+    // too for pooling
+    implementation("com.zaxxer:HikariCP:5.0.1")
 }
 
 ant.withGroovyBuilder {
